@@ -1,0 +1,18 @@
+{
+  "name": "spotify-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.133.0",
+    "fetch-headers": "^2.0.0",
+    "node-fetch": "^1.7.3",
+    "spotify-web-api-node": "^2.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
