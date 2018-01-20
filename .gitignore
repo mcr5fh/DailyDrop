@@ -1,1 +1,7 @@
-.DS_*
+**.zip
+node_modules/*
+*/node_modules/*
+**/**.zip
+**.DS_*
+ReallyOld/*
+RDS/Zipped/*

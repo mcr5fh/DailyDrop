@@ -13,15 +13,15 @@ var rdsCore = require("./rdsCore.js");
 //If this lands on a "warm" machine, it will not execute the code above,
 //since its already in memory
 exports.handler = (event, context, callback) => {
-	var client = new pg.Client(conString, function(err, client, done) {
+	var client = new pg.Client(conString, function (err, client, done) {
 		if (err) {
 			console.log('error fetching client from pool', err);
 		}
 	});
 
 	// allows for using callbacks as finish/error-handlers
- context.callbackWaitsForEmptyEventLoop = false;
-  
+	context.callbackWaitsForEmptyEventLoop = false;
+
 	client.connect();
 
 	var query = rdsCore.getSqlQuery(event);
@@ -35,12 +35,12 @@ exports.handler = (event, context, callback) => {
 		if (err) {
 			console.log("Error executing query");
 			console.log(err.stack);
-			statusCode = 400;
+			statusCode = 405;
 			resultValues = {
-				"Error detail:" : err.detail,
-				"Schema:" : err.schema,
-				"Table:" : err.table,
-				"Constraint:" : err.constraint
+				"Error detail:": err.detail,
+				"Schema:": err.schema,
+				"Table:": err.table,
+				"Constraint:": err.constraint
 			};
 		}
 		else {
@@ -57,20 +57,20 @@ exports.handler = (event, context, callback) => {
 				console.log("Successful Query. Result: " + resultValues);
 			}
 			else {
-				statusCode = 500;
+				statusCode = 404;
 				console.log("Error in executing query. Result: " + resultValues);
 			}
 		}
 		client.end();
 		//Status code will be set by now
 		var response = {
-				"statusCode": statusCode,
-				"headers": {
-					"Access-Control-Allow-Origin": "*", // Required for CORS support to work
-				},
-				"body": JSON.stringify(resultValues),
-				"isBase64Encoded": false
-			};
+			"statusCode": statusCode,
+			"headers": {
+				"Access-Control-Allow-Origin": "*", // Required for CORS support to work
+			},
+			"body": JSON.stringify(resultValues),
+			"isBase64Encoded": false
+		};
 		console.log(response);
 		callback(null, response);
 	});
