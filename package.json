@@ -1,0 +1,23 @@
+{
+  "name": "dailydrop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "rdsCoreTest.js",
+  "dependencies": {
+    "aws-serverless-express": "^3.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcr5fh/DailyDrop.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mcr5fh/DailyDrop/issues"
+  },
+  "homepage": "https://github.com/mcr5fh/DailyDrop#readme"
+}
