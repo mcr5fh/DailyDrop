@@ -44,6 +44,8 @@ exports.handler = (event, context, callback) => {
 			};
 		}
 		else {
+			console.log(result);
+			//if all groups for user, handle accordingly
 			//rows is an array of anomyous objects
 			result.rows.forEach(row => resultValues.push(row));
 			client.end();
@@ -55,10 +57,11 @@ exports.handler = (event, context, callback) => {
 			if (successfulQuery) {
 				statusCode = 200;
 				console.log("Successful Query. Result: " + resultValues);
+				console.log("Successful Query. Result: " + JSON.stringify(resultValues));
 			}
 			else {
 				statusCode = 404;
-				console.log("Error in executing query. Result: " + resultValues);
+				console.log("Error in executing query. Result: " + JSON.stringify(resultValues));
 			}
 		}
 		client.end();

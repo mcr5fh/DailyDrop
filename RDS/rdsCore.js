@@ -1,18 +1,27 @@
 'use strict';
+var fs = require("fs");
 
-const GET_SUBMISSIONS_IN_GROUP = '/v1/submission/{groupid}';
+const QUERY_FOLDER = 'SqlQueries/';
+//
+const GET_SUBMISSIONS_IN_GROUP_PATH = '/v1/submission/{group_id}';
+const GET_SUBMISSIONS_IN_GROUP_QUERY = '';
 //We should also have one for on a date 
-const GET_SUBMISSIONS_IN_GROUP_ON_DATE = '/v1/submission/{groupid}/{date????}';
-const GET_USERS_IN_GROUP = '/v1/users/{groupid}';
-const GET_GROUPS_FOR_USER = '/v1/users/{userid}/groups';
+const GET_SUBMISSIONS_IN_GROUP_ON_DATE_PATH = '/v1/submission/{group_id}/{date????}';
+const GET_USERS_IN_GROUP_PATH = '/v1/users/{group_id}';
 
-const GET_USERS_THAT_VOTED_ON_DATE = '/v1/users/{groupid}/date/{date}';
+const GET_ALL_GROUP_INFO_FOR_USER_PATH = '/v1/users/{user_id}/groups';
+const GET_ALL_GROUP_INFO_FOR_USER_QUERY = QUERY_FOLDER + 'get_all_group_info_for_user.sql';
 
-const INSER_USER = '/v1/users';
-const INSERT_GROUP = '/v1/groups';
-const INSERT_SUBMISSION = '/v1/submissions';
+//should be something like this
+const GET_USERS_THAT_VOTED_ON_DATE_PATH = '/v1/group/{group_id}/date/{date}';
 
-const VOTE_ON_SUBMISSION = '/v1/votes';
+const INSER_USER_PATH = '/v1/users';
+const INSERT_GROUP_PATH = '/v1/groups';
+const INSERT_SUBMISSION_PATH = '/v1/submissions';
+
+const INSERT_WINNER_OF_THE_DAY_QUERY = QUERY_FOLDER + 'get_winner_of_the_day.sql';
+
+const VOTE_ON_SUBMISSION_PATH = '/v1/votes';
 
 exports.getSqlQuery = function (event) {
 	console.log("event: " + JSON.stringify(event));
@@ -21,8 +30,10 @@ exports.getSqlQuery = function (event) {
 	//Path parameters are used for GETS
 	//Body is used for the updates
 	var pathParams = event.params;
-	var body = event.body;
-	//Need to decide how these are going to be passed
+	var body;
+	if (event.body != "") {
+		body = JSON.parse(event.body);
+	}
 	var sqlQuery, sqlValues;
 
 	console.log('Calling method: ' + resourcePath);
@@ -34,72 +45,70 @@ exports.getSqlQuery = function (event) {
 		/*
 		 * Gets
 		 */
-		case GET_SUBMISSIONS_IN_GROUP:
-			sqlQuery = "SELECT Songid, Userid, Groupid, SubmissionTime, NumVotes \
+		case GET_SUBMISSIONS_IN_GROUP_PATH:
+			sqlQuery = "SELECT song_id, user_id, group_id, submission_time, num_votes \
 						FROM  dailydrop.Submission \
-						WHERE Groupid=$1 ";
-			sqlValues = [pathParams.groupid];
+						WHERE group_id=$1 ";
+			sqlValues = [pathParams.group_id];
 			break;
-		case GET_USERS_IN_GROUP:
-			sqlQuery = "SELECT dailydrop.User.Userid, Premium, Name, RefreshToken FROM dailydrop.User \
+		case GET_USERS_IN_GROUP_PATH:
+			sqlQuery = "SELECT dailydrop.User.user_id, premium, name, refresh_token FROM dailydrop.User \
 						JOIN dailydrop.Group_User on \
-						dailydrop.User.Userid = dailydrop.Group_User.Userid \
-						WHERE Groupid=$1;";
-			sqlValues = [pathParams.groupid];
+						dailydrop.User.user_id = dailydrop.Group_User.user_id \
+						WHERE group_id=$1;";
+			sqlValues = [pathParams.group_id];
 			break;
-		case GET_GROUPS_FOR_USER:
-			sqlQuery = "SELECT g.Groupid, Name, VoteTime, SubmissionTime \
-						FROM dailydrop.Group AS g \
-						JOIN dailydrop.Group_User AS gu on \
-						gu.Groupid = g.Groupid \
-						WHERE gu.Userid=$1;";
-			sqlValues = [pathParams.userid];
+		case GET_ALL_GROUP_INFO_FOR_USER_PATH:
+			sqlQuery = fs.readFileSync(GET_ALL_GROUP_INFO_FOR_USER_QUERY, 'utf8');
+			sqlValues = [pathParams.user_id];
 			break;
 
-		case GET_USERS_THAT_VOTED_ON_DATE:
+		case GET_USERS_THAT_VOTED_ON_DATE_PATH:
 			sqlQuery = "SELECT * FROM dailydrop.Submission \
-						WHERE age(date $1, SubmissionTime) - interval '1 day' < interval '1 day'";
+						WHERE age(date $1, submission_time) - interval '1 day' < interval '1 day'";
 			sqlValues = [pathParams.date];
     	/*
     	 * Inserts
     	 */
-		case INSER_USER:
-			sqlQuery = 'INSERT INTO dailydrop.User(Userid, Premium, Name, RefreshToken) \
+		case INSER_USER_PATH:
+			sqlQuery = 'INSERT INTO dailydrop.User(user_id, premium, name, refresh_token) \
 						VALUES($1, $2, $3, $4) \
-						RETURNING Userid, Name, RefreshToken;';
-			sqlValues = [body.userid, body.premium, body.name, body.rToken];
+						RETURNING user_id, name, refresh_token;';
+			sqlValues = [body.user_id, body.premium, body.name, body.rToken];
 			break;
-		case INSERT_GROUP:
-			//Removed for debugging purposes ON CONFLICT (Groupid) DO NOTHING \
-			sqlQuery = 'INSERT INTO dailydrop.Group(Groupid, Name, VoteTime, SubmissionTime) \
+		case INSERT_GROUP_PATH:
+			//Removed for debugging purposes ON CONFLICT (group_id) DO NOTHING \
+			sqlQuery = 'INSERT INTO dailydrop.Group(group_id, name, Vote_time, submission_time) \
 						VALUES($1, $2, $3, $4) \
-						RETURNING Groupid, Name,  VoteTime, SubmissionTime;';
-			sqlValues = [body.groupid, body.name, body.voteTime, body.submissionTime];
+						RETURNING group_id, name,  Vote_time, submission_time;';
+			sqlValues = [body.group_id, body.name, body.vote_time, body.submission_time];
 			break;
-		case INSERT_SUBMISSION:
-			sqlQuery = "INSERT INTO dailydrop.Submission (Songid, Userid, Groupid, SubmissionTime, NumVotes) \
+		case INSERT_SUBMISSION_PATH:
+			sqlQuery = "INSERT INTO dailydrop.Submission (song_id, user_id, group_id, submission_time, num_votes) \
 						VALUES ($1, $2, $3, CURRENT_TIMESTAMP, 0) \
-						RETURNING Songid, Userid,SubmissionTime, NumVotes;";
-			sqlValues = [body.songid, body.userid, body.groupid];
+						RETURNING song_id, user_id,submission_time, num_votes;";
+			sqlValues = [body.song_id, body.user_id, body.group_id];
 			break;
 		/*
     	 * Updates
     	 * TODO : is this a POST or GET?
     	 */
-		case VOTE_ON_SUBMISSION:
+		case VOTE_ON_SUBMISSION_PATH:
 			//Where $1 is the person submitting the vote
 			//Don't let the person vote on their own submission
 			//If Row is non-exsistent, the result will contain zero rows
 			sqlQuery = "UPDATE dailydrop.Submission as s \
-						SET NumVotes = NumVotes + 1 \
-						WHERE s.Songid=$1 \
-						AND s.Userid!=$2 \
-						AND s.Groupid=$3 \
-						RETURNING NumVotes;";
-			sqlValues = [pathParams.songid, pathParams.userid, pathParams.groupid];
+						SET num_votes = num_votes + 1 \
+						WHERE s.song_id=$1 \
+						AND s.user_id!=$2 \
+						AND s.group_id=$3 \
+						RETURNING num_votes;";
+			sqlValues = [pathParams.song_id, pathParams.user_id, pathParams.group_id];
 			break;
 	}
 
+	//Add to json format to the response 
+	// sqlQuery = "select array_agg(row) from (" + sqlQuery + ") row";
 	return {
 		text: sqlQuery,
 		values: sqlValues
