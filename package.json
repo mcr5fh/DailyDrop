@@ -1,7 +1,6 @@
 {
   "name": "dailydrop",
   "version": "1.0.0",
-  "description": "",
   "main": "rdsCoreTest.js",
   "dependencies": {
     "aws-serverless-express": "^3.0.2"
@@ -19,5 +18,6 @@
   "bugs": {
     "url": "https://github.com/mcr5fh/DailyDrop/issues"
   },
-  "homepage": "https://github.com/mcr5fh/DailyDrop#readme"
+  "homepage": "https://github.com/mcr5fh/DailyDrop#readme",
+  "description": ""
 }
