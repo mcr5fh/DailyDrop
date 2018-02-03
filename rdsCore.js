@@ -5,15 +5,11 @@ const QUERY_FOLDER = 'SqlQueries/';
 const GET_ALL_INFO_FOR_GROUP_QUERY_PATH = QUERY_FOLDER + "get_all_info_for_group.sql"
 const GET_ALL_INFO_FOR_GROUP_QUERY = fs.readFileSync(GET_ALL_INFO_FOR_GROUP_QUERY_PATH, 'utf8')
 module.exports = Object.freeze({
-    // exports.GET_SUBMISSIONS_IN_GROUP_PATH = 'GET_SUBMISSIONS_IN_GROUP_PATH'
-    // exports.GET_SUBMISSIONS_IN_GROUP_QUERY = ''
     //We should also have one for on a date 
-    // GET_SUBMISSIONS_IN_GROUP_ON_DATE_PATH: 'GET_SUBMISSIONS_IN_GROUP_ON_DATE_PATH',
-    // GET_USERS_IN_GROUP_PATH: 'GET_USERS_IN_GROUP_PATH',
+    // GET_SUBMISSIONS_IN_GROUP_ON_DATE_PATH: 'GET_SUBMISSIONS_IN_GROUP_ON_DATE_PATH', query string params
     GET_USER_INFO: 'SELECT * FROM dailydrop.User WHERE user_id = $1',
+    GET_GROUP_INFO: 'SELECT * FROM dailydrop.Group WHERE group_id = $1',
 
-    // GET_ALL_GROUP_INFO_FOR_USER_PATH: 'GET_ALL_GROUP_INFO_FOR_USER_PATH',
-    // GET_ALL_GROUP_INFO_FOR_USER_QUERY: QUERY_FOLDER + 'get_all_group_info_for_user.sql',
     GET_ALL_INFO_FOR_GROUP: GET_ALL_INFO_FOR_GROUP_QUERY,
     GET_SUBMISSIONS_IN_GROUP: "SELECT * \
                 FROM dailydrop.submission \
@@ -25,22 +21,28 @@ module.exports = Object.freeze({
                         u.user_id = gu.user_id \
                         where gu.group_id = $1",
 
-    // //should be something like this
-    // GET_USERS_THAT_VOTED_ON_DATE_PATH: 'GET_USERS_THAT_VOTED_ON_DATE_PATH',
-    //Can drop the rToken column when we want
-    INSERT_USER: 'INSERT INTO dailydrop.User(user_id, premium, name) \
-                VALUES($1, $2, $3) \
-                RETURNING user_id, name;',
-    INSERT_SUBMISSION: 'INSERT INTO dailydrop.Submission (song_id, user_id, group_id, submission_time, num_votes) \
-                VALUES ($1, $2, $3, CURRENT_TIMESTAMP, 0) \
-                RETURNING song_id, user_id,submission_time, num_votes;',
+    //Can drop the rToken column if we want
+    INSERT_USER: 'INSERT INTO dailydrop.User(user_id, premium, name, refresh_token) \
+                VALUES($1, $2, $3, $4) \
+                RETURNING user_id, name, date_added;',
+    INSERT_GROUP: 'INSERT INTO dailydrop.Group(name, creator_user_id) \
+                VALUES($1, $2) \
+                RETURNING group_id, name, creator_user_id, date_added;',
+    INSERT_SUBMISSION: 'INSERT INTO dailydrop.Submission (song_id, song_name, artist_name, user_id, group_id) \
+                VALUES ($1, $2, $3, $4, $5) \
+                RETURNING song_id, user_id, submission_time;',
     //If result Row is non-exsistent, the result will contain zero rows
     //For now, we will let the person vote on their own submission
-    VOTE_ON_SUBMISSION: "UPDATE dailydrop.Submission as s \
+    ADD_VOTE_TO_SUBMISSION: "UPDATE dailydrop.Submission as s \
                         SET num_votes = num_votes + 1 \
                         WHERE s.song_id=$1 \
                         AND s.group_id=$2 \
-                        RETURNING num_votes;"
+                        RETURNING num_votes;",
+    ADD_PLAY_TO_SUBMISSION: "UPDATE dailydrop.Submission as s \
+                        SET num_plays = num_plays + 1 \
+                        WHERE s.song_id=$1 \
+                        AND s.group_id=$2 \
+                        RETURNING num_plays;"
 });
 
 // INSERT_GROUP_PATH: 'INSERT_GROUP_PATH',

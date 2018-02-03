@@ -14,3 +14,18 @@ exports.getAllInfoForGroup = function (req, res) {
         res.json(rows);
     })
 }
+
+exports.insertGroup = function (req, res) {
+    const userId = req.body.creator_user_id;
+    const groupName = req.body.name;
+    console.log("insert group USERID: " + userId)
+    console.log("insert group GROUP NAME: " + groupName)
+
+    // Make SQL query to get rows
+    pgHelper.insertGroup(groupName, userId, function (rows) {
+        console.log("In the insert group callback!");
+        console.log(rows);
+        //transform
+        res.json(rows);
+    })
+}
