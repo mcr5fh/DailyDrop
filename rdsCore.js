@@ -13,7 +13,8 @@ module.exports = Object.freeze({
     GET_ALL_INFO_FOR_GROUP: GET_ALL_INFO_FOR_GROUP_QUERY,
     GET_SUBMISSIONS_IN_GROUP: "SELECT * \
                 FROM dailydrop.submission \
-                WHERE dailydrop.submission.group_id = $1",
+                WHERE dailydrop.submission.group_id = $1 \
+                ORDER BY num_plays DESC, num_votes DESC",
 
     GET_USERS_IN_GROUP: "SELECT * \
                         FROM dailydrop.User as u \
@@ -25,24 +26,33 @@ module.exports = Object.freeze({
     INSERT_USER: 'INSERT INTO dailydrop.User(user_id, premium, name, refresh_token) \
                 VALUES($1, $2, $3, $4) \
                 RETURNING user_id, name, date_added;',
-    INSERT_GROUP: 'INSERT INTO dailydrop.Group(name, creator_user_id) \
-                VALUES($1, $2) \
-                RETURNING group_id, name, creator_user_id, date_added;',
+    INSERT_GROUP: 'INSERT INTO dailydrop.Group(name, creator_user_id, description) \
+                VALUES($1, $2, $3) \
+                RETURNING group_id, date_added, name, creator_user_id, description;',
     INSERT_SUBMISSION: 'INSERT INTO dailydrop.Submission (song_id, song_name, artist_name, user_id, group_id) \
                 VALUES ($1, $2, $3, $4, $5) \
-                RETURNING song_id, user_id, submission_time;',
+                RETURNING submission_id, song_id, user_id, group_id, submission_time;',
+    INSERT_PLAY: 'INSERT INTO dailydrop.play(submission_id, user_id) VALUES \
+                VALUES ($1, $2) \
+                RETURNING submission_id, user_id, date_added;',
+    INSERT_VOTE: 'INSERT INTO dailydrop.vote(submission_id, user_id) VALUES \
+                VALUES ($1, $2) \
+                RETURNING submission_id, user_id, date_added;',
     //If result Row is non-exsistent, the result will contain zero rows
     //For now, we will let the person vote on their own submission
     ADD_VOTE_TO_SUBMISSION: "UPDATE dailydrop.Submission as s \
                         SET num_votes = num_votes + 1 \
-                        WHERE s.song_id=$1 \
-                        AND s.group_id=$2 \
+                        WHERE s.submission_id=$1 \
                         RETURNING num_votes;",
     ADD_PLAY_TO_SUBMISSION: "UPDATE dailydrop.Submission as s \
                         SET num_plays = num_plays + 1 \
-                        WHERE s.song_id=$1 \
-                        AND s.group_id=$2 \
-                        RETURNING num_plays;"
+                        WHERE s.submission_id=$1 \
+                        RETURNING num_plays;",
+    UPDATE_GROUP: "UPDATE dailydrop.Group as g \
+                        SET name = $1, \
+                        description = $2 \
+                        WHERE g.group_id=$3 \
+                        RETURNING group_id, name, description, creator_user_id;"
 });
 
 // INSERT_GROUP_PATH: 'INSERT_GROUP_PATH',

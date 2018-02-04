@@ -27,7 +27,10 @@ app.post('/v1/users', api.insertUser)
  * Group Endpoints
  */
 //This is going to include all users and songs in the group
-app.get('/v1/groups/:group_id', api.getAllInfoForGroup)
+app.get('/v1/groups/:group_id/info', api.getAllInfoForGroup)
+app.get('/v1/groups/:group_id/submissions', api.getSubmissionsInGroup)
+app.get('/v1/groups/:group_id/users', api.getUsersInGroup)
+app.put('/v1/groups/:group_id', api.updateGroup)
 app.post('/v1/groups', api.insertGroup)
 
 /*

@@ -4,10 +4,12 @@ exports.insertSubmission = function (req, res) {
     const songId = req.body.song_id;
     const userId = req.body.user_id;
     const groupId = req.body.group_id;
+    const songName = req.body.song_name;
+    const artistName = req.body.artist_name;
     console.log("Inserting song ", songId, "in group ", groupId, "from user", userId);
 
     // Make SQL query to get rows
-    pgHelper.insertSubmission(songId, userId, groupId, function (rows) {
+    pgHelper.insertSubmission(songId, userId, groupId, songName, artistName, function (rows) {
         console.log("*******************************************\n");
         console.log("In the insert sub callback!");
         console.log(rows);
@@ -17,12 +19,12 @@ exports.insertSubmission = function (req, res) {
 }
 
 exports.addVoteToSubmission = function (req, res) {
-    const songId = req.body.song_id;
-    const groupId = req.body.group_id;
-    console.log("Voting on ", songId, "in group ", groupId);
+    const submissionId = req.params.submission_id;
+    // const groupId = req.body.group_id;
+    console.log("Voting on ", submissionId);
 
     // Make SQL query to get rows
-    pgHelper.addVoteToSubmission(songId, groupId, function (rows) {
+    pgHelper.addVoteToSubmission(submissionId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the vote on sub callback!");
         console.log(rows);
@@ -32,12 +34,12 @@ exports.addVoteToSubmission = function (req, res) {
 }
 
 exports.addPlayToSubmission = function (req, res) {
-    const songId = req.body.song_id;
-    const groupId = req.body.group_id;
-    console.log("Adding play on ", songId, "in group ", groupId);
+    const submissionId = req.params.submission_id;
+    // const groupId = req.body.group_id;
+    console.log("Adding play on ", submissionId);//, "in group ", groupId);
 
     // Make SQL query to get rows
-    pgHelper.addPlayToSubmission(songId, groupId, function (rows) {
+    pgHelper.addPlayToSubmission(submissionId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the add play on sub callback!");
         console.log(rows);
