@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "rdsCoreTest.js",
   "dependencies": {
+    "asyncawait": "^1.0.6",
     "aws-serverless-express": "^3.0.2"
   },
   "devDependencies": {},

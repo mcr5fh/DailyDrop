@@ -19,7 +19,6 @@ tags:
   - name: Users
     description: Endpoints concerning users
 paths:
-  #Not yet implemented
   # '/users/{user_id}/groups':
   #   get:
   #     tags:
@@ -225,7 +224,7 @@ paths:
         - name: user_id
           in: formData
           type: string
-          description: Spotify user ID
+          description: Spotify user ID?
         - name: premium
           in: formData
           type: boolean
@@ -308,13 +307,13 @@ paths:
         '200':
           description: Created tag successfully. Returned the submission.
           schema:
-            $ref: '#/definitions/Tag'
+            $ref: '#/definitions/Submission'
         '500':
           description: Server error. Unable to create submission.
     get:
       tags:
         - Songs
-      summary: Get the Tag for a song.
+      summary: Tag a song.
       consumes:
         - application/json
         - application/xml
@@ -332,7 +331,7 @@ paths:
         '200':
           description: Created user successfully. Returned the submission.
           schema:
-            $ref: '#/definitions/Tag'
+            $ref: '#/definitions/Submission'
         '500':
           description: Server error. Unable to create submission.
   '/votes/{submission_id}':
@@ -458,7 +457,7 @@ definitions:
         type: array
         description: Songs in the submission queue
         items:
-          $ref: '#/definitions/Song'
+          $ref: '#/definitions/Submission'
   GroupInfo:
     type: object
     properties:
@@ -504,6 +503,12 @@ definitions:
       num_plays:
         type: integer
         description: Number of plays
+      trending_rate:
+        type: number
+        description: Float rate
+      popular_rate:
+        type: number
+        description: Float rate
       tag:
         type: string
         description: 'This will be an "enum": {"Featured", "Popular"}'
@@ -514,22 +519,6 @@ definitions:
       num_votes:
         type: string
         description: The updated number of votes a submission has
-      date_added:
-        type: string
-        format: date-time
-        description: The date the vote was logged in the DB
-
-        
-  Tag:
-    type: object
-    properties:
-      tag:
-        type: string
-        description: The tag of the song
-      date_added:
-        type: string
-        format: date-time
-        description: The date the song was tagged in the DB
 
   PlayResult:
     type: object
@@ -537,10 +526,6 @@ definitions:
       num_votes:
         type: string
         description: The updated number of votes a submission has
-      date_added:
-        type: string
-        format: date-time
-        description: The date the vote was logged in the DB
         
 externalDocs:
   description: Find out more about DailyDrop

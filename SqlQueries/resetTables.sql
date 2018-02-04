@@ -35,14 +35,18 @@ INSERT INTO dailydrop.Submission(song_id, user_id, group_id, song_name, artist_n
 		('Played Song 2', 'TestUser2', '2bca6d38-617f-4f9b-905b-f695ab8943c2', 'Tiesto Cranks', 'Tiesto', '2bca6d38-617f-4f9b-905b-f695ab8943c2')
 
 --Reset Play and Vote table. One has more votes, one has more plays
-delete from dailydrop.play;
-INSERT INTO dailydrop.play(submission_id, user_id, date_added) VALUES
+delete from dailydrop.submission_play;
+INSERT INTO dailydrop.submission_play(submission_id, user_id, date_added) VALUES
 		('a1ef3cd9-1a42-4f3f-90a7-b8760edbac4f', 'TestUser3', '2018-02-01'),
 		('a1ef3cd9-1a42-4f3f-90a7-b8760edbac4f', 'TestUser2', '2017-02-01'),
 		('2bca6d38-617f-4f9b-905b-f695ab8943c2', 'TestUser2', '2018-02-01');
 
-delete from dailydrop.vote;
-INSERT INTO dailydrop.vote(submission_id, user_id, date_added) VALUES
+delete from dailydrop.submission_vote;
+INSERT INTO dailydrop.submission_vote(submission_id, user_id, date_added) VALUES
 		('a1ef3cd9-1a42-4f3f-90a7-b8760edbac4f', 'TestUser2', '2018-02-01'),
 		('2bca6d38-617f-4f9b-905b-f695ab8943c2', 'TestUser3', '2017-02-01'),
 		('2bca6d38-617f-4f9b-905b-f695ab8943c2', 'TestUser2', '2018-02-01');
+
+INSERT INTO dailydrop.submission_tag(submission_id, tag) VALUES
+        ('2bca6d38-617f-4f9b-905b-f695ab8943c2', 'Featured'),
+		('0b6a3d91-ae0b-4c2d-b501-548d8c3b23d7', 'Popular');

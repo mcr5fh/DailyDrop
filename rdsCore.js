@@ -10,11 +10,16 @@ module.exports = Object.freeze({
     GET_USER_INFO: 'SELECT * FROM dailydrop.User WHERE user_id = $1',
     GET_GROUP_INFO: 'SELECT * FROM dailydrop.Group WHERE group_id = $1',
 
-    GET_ALL_INFO_FOR_GROUP: GET_ALL_INFO_FOR_GROUP_QUERY,
-    GET_SUBMISSIONS_IN_GROUP: "SELECT * \
-                FROM dailydrop.submission \
-                WHERE dailydrop.submission.group_id = $1 \
-                ORDER BY num_plays DESC, num_votes DESC",
+    // GET_ALL_INFO_FOR_GROUP: GET_ALL_INFO_FOR_GROUP_QUERY,
+    GET_SUBMISSIONS_IN_GROUP: "SELECT s.submission_id, s.song_id, s.song_name, s.artist_name, s.user_id,  sm.num_votes, \
+                                    sm.num_plays, st.tag, sm.trending_rate, sm.popular_rate, s.date_added \
+                                FROM dailydrop.Submission as s \
+                                LEFT OUTER JOIN dailydrop.Submission_Metrics as sm \
+                                    on s.submission_id = sm.submission_id \
+                                LEFT OUTER JOIN dailydrop.submission_tag as st \
+                                    on s.submission_id = st.submission_id \
+                                WHERE s.group_id = $1 \
+                                ORDER BY sm.num_plays DESC, sm.num_votes DESC;",
 
     GET_USERS_IN_GROUP: "SELECT * \
                         FROM dailydrop.User as u \
@@ -32,19 +37,19 @@ module.exports = Object.freeze({
     INSERT_SUBMISSION: 'INSERT INTO dailydrop.Submission (song_id, song_name, artist_name, user_id, group_id) \
                 VALUES ($1, $2, $3, $4, $5) \
                 RETURNING submission_id, song_id, user_id, group_id, submission_time;',
-    INSERT_PLAY: 'INSERT INTO dailydrop.play(submission_id, user_id) VALUES \
+    INSERT_PLAY: 'INSERT INTO dailydrop.Submission_Play(submission_id, user_id) \
                 VALUES ($1, $2) \
                 RETURNING submission_id, user_id, date_added;',
-    INSERT_VOTE: 'INSERT INTO dailydrop.vote(submission_id, user_id) VALUES \
+    INSERT_VOTE: 'INSERT INTO dailydrop.Submission_Vote(submission_id, user_id) \
                 VALUES ($1, $2) \
                 RETURNING submission_id, user_id, date_added;',
     //If result Row is non-exsistent, the result will contain zero rows
     //For now, we will let the person vote on their own submission
-    ADD_VOTE_TO_SUBMISSION: "UPDATE dailydrop.Submission as s \
+    ADD_VOTE_TO_SUBMISSION: "UPDATE dailydrop.Submission_Metrics as s \
                         SET num_votes = num_votes + 1 \
                         WHERE s.submission_id=$1 \
                         RETURNING num_votes;",
-    ADD_PLAY_TO_SUBMISSION: "UPDATE dailydrop.Submission as s \
+    ADD_PLAY_TO_SUBMISSION: "UPDATE dailydrop.Submission_Metrics as s \
                         SET num_plays = num_plays + 1 \
                         WHERE s.submission_id=$1 \
                         RETURNING num_plays;",

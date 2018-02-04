@@ -20,11 +20,13 @@ exports.insertSubmission = function (req, res) {
 
 exports.addVoteToSubmission = function (req, res) {
     const submissionId = req.params.submission_id;
+    const userId = req.body.user_id;
     // const groupId = req.body.group_id;
+    console.log(req);
     console.log("Voting on ", submissionId);
 
     // Make SQL query to get rows
-    pgHelper.addVoteToSubmission(submissionId, function (rows) {
+    pgHelper.addVoteToSubmission(submissionId, userId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the vote on sub callback!");
         console.log(rows);
@@ -35,11 +37,12 @@ exports.addVoteToSubmission = function (req, res) {
 
 exports.addPlayToSubmission = function (req, res) {
     const submissionId = req.params.submission_id;
+    const userId = req.body.user_id;
     // const groupId = req.body.group_id;
     console.log("Adding play on ", submissionId);//, "in group ", groupId);
 
     // Make SQL query to get rows
-    pgHelper.addPlayToSubmission(submissionId, function (rows) {
+    pgHelper.addPlayToSubmission(submissionId, userId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the add play on sub callback!");
         console.log(rows);
