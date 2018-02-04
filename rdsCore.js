@@ -27,6 +27,9 @@ module.exports = Object.freeze({
                         u.user_id = gu.user_id \
                         where gu.group_id = $1",
 
+    GET_TAG: 'SELECT * FROM dailydrop.Submission_Tag \
+              WHERE submission_id=$1;',
+
     //Can drop the rToken column if we want
     INSERT_USER: 'INSERT INTO dailydrop.User(user_id, premium, name, refresh_token) \
                 VALUES($1, $2, $3, $4) \
@@ -43,6 +46,10 @@ module.exports = Object.freeze({
     INSERT_VOTE: 'INSERT INTO dailydrop.Submission_Vote(submission_id, user_id) \
                 VALUES ($1, $2) \
                 RETURNING submission_id, user_id, date_added;',
+    INSERT_TAG: 'INSERT INTO dailydrop.Submission_Tag(submission_id, tag) \
+                VALUES ($1, $2) \
+                RETURNING submission_id, tag, date_added;',
+
     //If result Row is non-exsistent, the result will contain zero rows
     //For now, we will let the person vote on their own submission
     ADD_VOTE_TO_SUBMISSION: "UPDATE dailydrop.Submission_Metrics as s \

@@ -44,7 +44,7 @@ app.put('/v1/votes/:submission_id', api.addVoteToSubmission)
 app.put('/v1/plays/:submission_id', api.addPlayToSubmission)
 
 //Tags
-// app.post('/v1/tags/:submission_id', api.addTagToSubmission)
-// app.get('/v1/tags/:submission_id', api.getSubmissionTag)
+app.post('/v1/tags', api.addTagToSubmission)
+app.get('/v1/tags/:submission_id', api.getSubmissionTag)
 
 module.exports = app

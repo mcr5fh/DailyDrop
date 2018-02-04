@@ -35,15 +35,8 @@ const TEST_PREFIX = "_TEST_";
 function execQuery(query, callback) {
     console.log("Executing the following query: " + JSON.stringify(query));
 
-    // var client = new pg.Client(conString, function (err, client, done) {
-    //     if (err) {
-    //         console.log('error fetching client from pool', err);
-    //     }
-    // });
     query.values.forEach(checkForTestData);
     query.values.forEach(checkIfNull);
-
-    var resultValues = [];
 
     pool.query(query, (err, result) => {
         if (err) {
@@ -52,6 +45,7 @@ function execQuery(query, callback) {
             throw err;
         }
         else {
+            var resultValues = [];
             console.log(result.rows);
             //if all groups for user, handle accordingly
             //rows is an array of anomyous objects
@@ -68,7 +62,6 @@ function execQuery(query, callback) {
 function execTransaction(queryList, callback) {
     console.log("Executing the following transaction: " + JSON.stringify(queryList));
 
-    var resultValues = [];
     (async(() => {
         // note: we don't try/catch this because if connecting throws an exception
         // we don't need to dispose of the client (it will be undefined)
@@ -76,14 +69,18 @@ function execTransaction(queryList, callback) {
 
         try {
             await(client.query('BEGIN'))
-
+            var resultValues = [];
             queryList.forEach(queryObj => {
+                //We don't want to run the query if there was an error parsing any info 
                 queryObj.values.forEach(checkForTestData);
                 queryObj.values.forEach(checkIfNull);
                 console.log("Executing query: ", queryObj);
                 const { rows } = await(client.query(queryObj))
                 checkIfNull(rows);
-                resultValues.push(rows)
+                //Iterate through the result rows to "flatten" the object
+                rows.forEach(row => resultValues.push(row));
+                console.log(resultValues);
+
             })
             await(client.query('COMMIT'))
             console.log("Transaction complete");
@@ -292,6 +289,32 @@ exports.addPlayToSubmission = function (submissionId, userId, callback) {
     }
     // Make SQL query to get rows
     execTransaction([insertPlay, incrementPlay], function (rows) {
+        //transform
+        console.log("In PLAY SUBMISSION execQuery callback. Passing to sub callback!");
+        callback(rows)
+    })
+}
+
+exports.addTagToSubmission = function (submissionId, tag, callback) {
+    var insertTag = {
+        text: rdsCore.INSERT_TAG,
+        values: [submissionId, tag]
+    }
+    // Make SQL query to get rows
+    execQuery(insertTag, function (rows) {
+        //transform
+        console.log("In PLAY SUBMISSION execQuery callback. Passing to sub callback!");
+        callback(rows)
+    })
+}
+
+exports.getSubmissionTag = function (submissionId, callback) {
+    var getTag = {
+        text: rdsCore.GET_TAG,
+        values: [submissionId]
+    }
+    // Make SQL query to get rows
+    execQuery(getTag, function (rows) {
         //transform
         console.log("In PLAY SUBMISSION execQuery callback. Passing to sub callback!");
         callback(rows)

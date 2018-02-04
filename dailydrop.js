@@ -17,3 +17,6 @@ exports.insertUser = users.insertUser
 exports.insertSubmission = submissions.insertSubmission
 exports.addVoteToSubmission = submissions.addVoteToSubmission
 exports.addPlayToSubmission = submissions.addPlayToSubmission
+
+exports.addTagToSubmission = submissions.addTagToSubmission;
+exports.getSubmissionTag = submissions.getSubmissionTag;

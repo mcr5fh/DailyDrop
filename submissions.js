@@ -50,3 +50,48 @@ exports.addPlayToSubmission = function (req, res) {
         res.json(rows);
     })
 }
+
+exports.addPlayToSubmission = function (req, res) {
+    const submissionId = req.params.submission_id;
+    const userId = req.body.user_id;
+    // const groupId = req.body.group_id;
+    console.log("Adding play on ", submissionId);//, "in group ", groupId);
+
+    // Make SQL query to get rows
+    pgHelper.addPlayToSubmission(submissionId, userId, function (rows) {
+        console.log("*******************************************\n");
+        console.log("In the add play on sub callback!");
+        console.log(rows);
+        //transform
+        res.json(rows);
+    })
+}
+
+exports.addTagToSubmission = function (req, res) {
+    const submissionId = req.body.submission_id;
+    const tag = req.body.tag;
+    console.log("Adding play on ", submissionId);//, "in group ", groupId);
+
+    // Make SQL query to get rows
+    pgHelper.addTagToSubmission(submissionId, tag, function (rows) {
+        console.log("*******************************************\n");
+        console.log("In the get tag on sub callback!");
+        console.log(rows);
+        //transform
+        res.json(rows);
+    })
+}
+
+exports.getSubmissionTag = function (req, res) {
+    const submissionId = req.params.submission_id;
+    console.log("Adding play on ", submissionId);//, "in group ", groupId);
+
+    // Make SQL query to get rows
+    pgHelper.getSubmissionTag(submissionId, function (rows) {
+        console.log("*******************************************\n");
+        console.log("In the get tag on sub callback!");
+        console.log(rows);
+        //transform
+        res.json(rows);
+    })
+}

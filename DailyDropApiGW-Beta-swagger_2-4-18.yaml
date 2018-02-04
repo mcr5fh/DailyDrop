@@ -1,0 +1,162 @@
+---
+swagger: "2.0"
+info:
+  version: "2018-02-04T21:43:54Z"
+  title: "DailyDropApiGW"
+host: "yyh6hsqj4g.execute-api.us-east-1.amazonaws.com"
+basePath: "/Beta"
+schemes:
+- "https"
+paths:
+  /v1/groups:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/groups/{group_id}:
+    put:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "group_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/groups/{group_id}/info:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "group_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/groups/{group_id}/submissions:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "group_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/groups/{group_id}/users:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "group_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/plays/{submission_id}:
+    put:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "submission_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/submissions:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/tags:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/tags/{submission_id}:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "submission_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/users:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/users/{user_id}/info:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "user_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+  /v1/votes/{submission_id}:
+    put:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "submission_id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
