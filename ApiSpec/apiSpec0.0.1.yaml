@@ -1,0 +1,552 @@
+swagger: '2.0'
+info:
+  description: >
+    This is the Daily Drop API. An API meant for uploading song submissions,
+    voting, retrieving submissions for the Daily Drop platform. For the purpose of simplicity, assume all of the parameters provided in the API are REQUIRED. You'll get an error otherwise
+  version: 1.0.0
+  title: Daily Drop API
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: dailydrop@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: Groups
+    description: Endpoints concerning groups
+  - name: Songs
+    description: Endpoints concerning songs
+  - name: Users
+    description: Endpoints concerning users
+paths:
+  #Not yet implemented
+  # '/users/{user_id}/groups':
+  #   get:
+  #     tags:
+  #       #- Groups
+  #       - Users
+  #     summary: Retrieve groups a user is in
+  #     consumes:
+  #       - application/json
+  #       - application/xml
+  #     produces:
+  #       - application/json
+  #       - application/xml
+  #     parameters:
+  #       - name: user_id
+  #         in: path
+  #         description: ID of the user for whom we are retrieving these groups.
+  #         required: true
+  #         type: string
+  #     responses:
+  #       '200':
+  #         description: 'Valid user ID, groups and playlists contained within response'
+  #         schema:
+  #           description: A response containing a list of Groups Objects
+  #           type: array
+  #           items:
+  #             $ref: '#/definitions/Group'
+  #       '404':
+  #         description: Group or User not found
+  #       '405':
+  #         description: Invalid input
+  #       '500':
+  #         description: Server error
+  '/users/{user_id}/info' :
+    get:
+      tags:
+        # - Groups
+        - Users
+      summary: Get the user's info
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user of which we want to get info for.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Valid user_id
+          schema:
+            $ref: '#/definitions/User'
+        '404':
+          description: Group not found
+        '405':
+          description: Invalid input
+        '500':
+          description: Server error
+  '/groups/{group_id}/info':
+    get:
+      tags:
+        - Groups
+      summary: 'Get the users, playlist, songs info for a group'
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: group_id
+          in: path
+          description: ID of the group of which we want all the information.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Valid group_id
+          schema:
+            $ref: '#/definitions/Group'
+        '404':
+          description: Group not found
+        '405':
+          description: Invalid input
+        '500':
+          description: Server error
+  '/groups/{group_id}/users':
+    get:
+      tags:
+        - Groups
+      summary: 'Get the users in a group'
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: group_id
+          in: path
+          description: ID of the group of which we want all the information.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Users in a group
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        '404':
+          description: Group not found
+        '405':
+          description: Invalid input
+        '500':
+          description: Server error
+  '/groups/{group_id}/submissions':
+    get:
+      tags:
+        - Groups
+      summary: 'Get the songs in a group'
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: group_id
+          in: path
+          description: ID of the group of which we want all the information.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Submissions in the submission queue
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Submission'
+        '404':
+          description: Group not found
+        '405':
+          description: Invalid input
+        '500':
+          description: Server error
+  '/groups':
+    post:
+      tags:
+        - Groups
+      summary: Create a new group.
+      consumes:
+        - application/json
+        - application/xml
+        - multipart/form-data
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: name
+          in: formData
+          description: Group name 
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: Group info
+          required: true
+          type: string
+        - name: creator_user_id
+          in: formData
+          description: User who created the group
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Created group successfully. Returned the group_id and group_added time.
+          schema:
+            $ref: '#/definitions/GroupInfo'
+        '500':
+          description: Server error. Unable to create group.
+  '/users':
+    post:
+      tags:
+        - Users
+      summary: Create a new user.
+      consumes:
+        - application/json
+        - application/xml
+        - multipart/form-data
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: name
+          in: formData
+          description: Group info for submission
+          required: true
+          type: string
+        - name: user_id
+          in: formData
+          type: string
+          description: Spotify user ID
+        - name: premium
+          in: formData
+          type: boolean
+          description: Is the user a premium user
+        - name: refresh_token
+          in: formData
+          type: string
+          description: Spotify refresh token
+      responses:
+        '200':
+          description: Created user successfully. Returned the user_id.
+          schema:
+            $ref: '#/definitions/User'
+        '500':
+          description: Server error. Unable to create user.
+  '/submissions':
+    post:
+      tags:
+        - Songs
+      summary: Submit a song
+      consumes:
+        - application/json
+        - application/xml
+        - multipart/form-data
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: song_id
+          in: formData
+          description: Spotify song id
+          required: true
+          type: string
+        - name: song_name
+          in: formData
+          type: string
+          description: Name of the song
+        - name: artist_name
+          in: formData
+          type: string
+          description: Name of the artist
+        - name: user_id
+          in: formData
+          type: string
+          description: Spotify user ID who submitted the song
+        - name: group_id
+          in: formData
+          type: string
+          description: What group this song is being submitted to 
+      responses:
+        '200':
+          description: Created user successfully. Returned the submission.
+          schema:
+            $ref: '#/definitions/Submission'
+        '500':
+          description: Server error. Unable to create submission.
+  '/tags/{submission_id}':
+    post:
+      tags:
+        - Songs
+      summary: Update or create a Tag for a song. If a Tag already exists, the tag will be replaced
+      consumes:
+        - application/json
+        - application/xml
+        - multipart/form-data
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: submission_id
+          in: path
+          description: Submission id
+          required: true
+          type: string
+        - name: tag
+          in: formData
+          type: string
+          description: Tag of the song
+      responses:
+        '200':
+          description: Created tag successfully. Returned the submission.
+          schema:
+            $ref: '#/definitions/Tag'
+        '500':
+          description: Server error. Unable to create submission.
+    get:
+      tags:
+        - Songs
+      summary: Get the Tag for a song.
+      consumes:
+        - application/json
+        - application/xml
+        - multipart/form-data
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: submission_id
+          in: path
+          description: Submission id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Created user successfully. Returned the submission.
+          schema:
+            $ref: '#/definitions/Tag'
+        '500':
+          description: Server error. Unable to create submission.
+  '/votes/{submission_id}':
+    put:
+      tags:
+        - Songs
+      summary: Add a vote to a song.
+      consumes:
+        - application/json
+        - application/xml
+        - multipart/form-data
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: submission_id
+          required: true
+          in: path
+          type: string
+          description: Submission id  (UUID) of the song  
+        - name: user_id
+          in: formData
+          type: string
+          description: Spoitfy user id who played the song  
+      responses:
+        '200':
+          description: Created user successfully. Returned the submission.
+          schema:
+            $ref: '#/definitions/VoteResult'
+        '500':
+          description: Server error. Unable to create submission.
+          
+  '/plays/{submission_id}':
+    put:
+      tags:
+        - Songs
+      summary: Add a play to a song.
+      consumes:
+        - application/json
+        - application/xml
+        - multipart/form-data
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: submission_id
+          required: true
+          in: path
+          type: string
+          description: Submission id  (UUID) of the song  
+        - name: user_id
+          in: formData
+          type: string
+          description: Spoitfy user id who played the song
+      responses:
+        '200':
+          description: Created user successfully. Returned the submission.
+          schema:
+            $ref: '#/definitions/PlayResult'
+        '500':
+          description: Server error. Unable to create submission.
+definitions:
+  User:
+    type: object
+    properties:
+      user_id:
+        type: string
+      userName:
+        type: string
+      premium:
+        type: boolean
+        description: True if the user is a premium Spotify user. False otherwise.
+      refresh_token:
+        type: string
+        description: User's Spotify refresh token. No required
+      date_added:
+        type: string
+        format: date-time
+        description: DateTime the user was added to our DB
+
+  Song:
+    type: object
+    properties:
+      song_id:
+        type: string
+      user_id:
+        type: string
+        description: The user who submitted the song
+      playlist_id:
+        type: string
+        description: The playlist the song was submitted to
+      submissionTime:
+        type: string
+        description: Time when the song was submitted
+      numVotes:
+        type: integer
+        description: Number of votes for this song
+  Group:
+    type: object
+    properties:
+      group_id:
+        type: string
+        description: DB generated UUID of a group
+      creator_user_id:
+        type: string
+        description: user ID of creator of the group
+      group_name:
+        type: string
+        description: Name of the group
+      group_description:
+        type: string
+        description: A simple description of the playlist
+      date_added:
+        type: string
+        format: date-time
+        description: DB generated UUID of a group
+      users:
+        type: array
+        description: Users in the group
+        items:
+          $ref: '#/definitions/User'
+      songs:
+        type: array
+        description: Songs in the submission queue
+        items:
+          $ref: '#/definitions/Song'
+  GroupInfo:
+    type: object
+    properties:
+      group_id:
+        type: string
+        description: DB generated UUID of a group
+      creator_user_id:
+        type: string
+        description: user ID of creator of the group
+      group_name:
+        type: string
+        description: Name of the group
+      group_description:
+        type: string
+        description: A simple description of the playlist
+      date_added:
+        type: string
+        format: date-time
+        description: DB generated UUID of a group
+
+  Submission:
+    type: object
+    properties:
+      submission_id:
+        type: string
+        description: DB generated UUID of a group
+      user_id:
+        type: string
+        description: Name of user that submitted song
+      song_name:
+        type: string
+        description: Name of song
+      artist_name:
+        type: string
+        description: Name of artist
+      date_added:
+        type: string
+        format: date-time
+        description: Time at which the song was submitted
+      num_votes:
+        type: integer
+        description: Number of votes
+      num_plays:
+        type: integer
+        description: Number of plays
+      tag:
+        type: string
+        description: 'This will be an "enum": {"Featured", "Popular"}'
+        
+  VoteResult:
+    type: object
+    properties:
+      num_votes:
+        type: string
+        description: The updated number of votes a submission has
+      date_added:
+        type: string
+        format: date-time
+        description: The date the vote was logged in the DB
+
+        
+  Tag:
+    type: object
+    properties:
+      tag:
+        type: string
+        description: The tag of the song
+      date_added:
+        type: string
+        format: date-time
+        description: The date the song was tagged in the DB
+
+  PlayResult:
+    type: object
+    properties:
+      num_votes:
+        type: string
+        description: The updated number of votes a submission has
+      date_added:
+        type: string
+        format: date-time
+        description: The date the vote was logged in the DB
+        
+externalDocs:
+  description: Find out more about DailyDrop
+  url: 'http://dailydrop.io'
+host: virtserver.swaggerhub.com
+schemes:
+  - https
+  - http
+basePath: /DailyDrop/DailyDrop-v1/1.0.0
