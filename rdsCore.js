@@ -33,6 +33,8 @@ module.exports = Object.freeze({
     //Can drop the rToken column if we want
     INSERT_USER: 'INSERT INTO dailydrop.User(user_id, premium, name, refresh_token) \
                 VALUES($1, $2, $3, $4) \
+                ON CONFLICT (user_id) DO UPDATE \
+                SET premium = $2, name = $3, refresh_token = $3 \
                 RETURNING user_id, name, date_added;',
     INSERT_GROUP: 'INSERT INTO dailydrop.Group(name, creator_user_id, description) \
                 VALUES($1, $2, $3) \
@@ -48,6 +50,8 @@ module.exports = Object.freeze({
                 RETURNING submission_id, user_id, date_added;',
     INSERT_TAG: 'INSERT INTO dailydrop.Submission_Tag(submission_id, tag) \
                 VALUES ($1, $2) \
+                ON CONFLICT(submission_id) DO UPDATE \
+                SET tag = $2, , date_added = now() \
                 RETURNING submission_id, tag, date_added;',
 
     //If result Row is non-exsistent, the result will contain zero rows

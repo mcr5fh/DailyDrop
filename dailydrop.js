@@ -2,21 +2,26 @@ const groups = require("groups.js")
 const users = require("users.js")
 const submissions = require("submissions.js")
 
+function route(req, res, func) {
+    console.log(req);
+    return func(req, res);
+}
+
 // Groups
-exports.getUsersInGroup = groups.getUsersInGroup
-exports.getSubmissionsInGroup = groups.getSubmissionsInGroup
-exports.getAllInfoForGroup = groups.getAllInfoForGroup
-exports.insertGroup = groups.insertGroup
-exports.updateGroup = groups.updateGroup
+exports.getUsersInGroup = (req, res) => route(req, res, groups.getUsersInGroup);
+exports.getSubmissionsInGroup = (req, res) => route(req, res, groups.getSubmissionsInGroup);
+exports.getAllInfoForGroup = (req, res) => route(req, res, groups.getAllInfoForGroup);
+exports.insertGroup = (req, res) => route(req, res, groups.insertGroup);
+exports.updateGroup = (req, res) => route(req, res, groups.updateGroup);
 
 // Users
-exports.getUserInfo = users.getUserInfo
-exports.insertUser = users.insertUser
+exports.getUserInfo = (req, res) => route(req, res, users.getUserInfo);
+exports.insertUser = (req, res) => route(req, res, users.insertUser);
 
 //Submissions
-exports.insertSubmission = submissions.insertSubmission
-exports.addVoteToSubmission = submissions.addVoteToSubmission
-exports.addPlayToSubmission = submissions.addPlayToSubmission
+exports.insertSubmission = (req, res) => route(req, res, submissions.insertSubmission);
+exports.addVoteToSubmission = (req, res) => route(req, res, submissions.addVoteToSubmission);
+exports.addPlayToSubmission = (req, res) => route(req, res, submissions.addPlayToSubmission);
 
-exports.addTagToSubmission = submissions.addTagToSubmission;
-exports.getSubmissionTag = submissions.getSubmissionTag;
+exports.addTagToSubmission = (req, res) => route(req, res, submissions.addTagToSubmission);
+exports.getSubmissionTag = (req, res) => route(req, res, submissions.getSubmissionTag);
