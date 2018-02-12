@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
 // app.get('/v1/groups/:user_id', api.getAllInfoForUser)
 app.get('/v1/users/:user_id/info', api.getUserInfo)
 app.post('/v1/users', api.insertUser)
+app.put('/v1/users/:user_id', api.updateUser)
 
 /*
  * Group Endpoints

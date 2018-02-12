@@ -1,10 +1,10 @@
-const groups = require("groups.js")
-const users = require("users.js")
-const submissions = require("submissions.js")
+const groups = require("./groups.js")
+const users = require("./users.js")
+const submissions = require("./submissions.js")
 
 function route(req, res, func) {
     console.log(req);
-    return func(req, res);
+    func(req, res);
 }
 
 // Groups
@@ -17,6 +17,7 @@ exports.updateGroup = (req, res) => route(req, res, groups.updateGroup);
 // Users
 exports.getUserInfo = (req, res) => route(req, res, users.getUserInfo);
 exports.insertUser = (req, res) => route(req, res, users.insertUser);
+exports.updateUser = (req, res) => route(req, res, users.updateUser);
 
 //Submissions
 exports.insertSubmission = (req, res) => route(req, res, submissions.insertSubmission);

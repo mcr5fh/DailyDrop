@@ -1,4 +1,4 @@
-const pgHelper = require("pgHelper.js")
+const pgController = require("../postgres/submissionsPgController.js")
 
 exports.insertSubmission = function (req, res) {
     const songId = req.body.song_id;
@@ -9,7 +9,7 @@ exports.insertSubmission = function (req, res) {
     console.log("Inserting song ", songId, "in group ", groupId, "from user", userId);
 
     // Make SQL query to get rows
-    pgHelper.insertSubmission(songId, userId, groupId, songName, artistName, function (rows) {
+    pgController.insertSubmission(songId, userId, groupId, songName, artistName, function (rows) {
         console.log("*******************************************\n");
         console.log("In the insert sub callback!");
         console.log(rows);
@@ -26,7 +26,7 @@ exports.addVoteToSubmission = function (req, res) {
     console.log("Voting on ", submissionId);
 
     // Make SQL query to get rows
-    pgHelper.addVoteToSubmission(submissionId, userId, function (rows) {
+    pgController.addVoteToSubmission(submissionId, userId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the vote on sub callback!");
         console.log(rows);
@@ -42,7 +42,7 @@ exports.addPlayToSubmission = function (req, res) {
     console.log("Adding play on ", submissionId);//, "in group ", groupId);
 
     // Make SQL query to get rows
-    pgHelper.addPlayToSubmission(submissionId, userId, function (rows) {
+    pgController.addPlayToSubmission(submissionId, userId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the add play on sub callback!");
         console.log(rows);
@@ -58,7 +58,7 @@ exports.addPlayToSubmission = function (req, res) {
     console.log("Adding play on ", submissionId);//, "in group ", groupId);
 
     // Make SQL query to get rows
-    pgHelper.addPlayToSubmission(submissionId, userId, function (rows) {
+    pgController.addPlayToSubmission(submissionId, userId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the add play on sub callback!");
         console.log(rows);
@@ -73,7 +73,7 @@ exports.addTagToSubmission = function (req, res) {
     console.log("Adding play on ", submissionId);//, "in group ", groupId);
 
     // Make SQL query to get rows
-    pgHelper.addTagToSubmission(submissionId, tag, function (rows) {
+    pgController.addTagToSubmission(submissionId, tag, function (rows) {
         console.log("*******************************************\n");
         console.log("In the get tag on sub callback!");
         console.log(rows);
@@ -87,7 +87,7 @@ exports.getSubmissionTag = function (req, res) {
     console.log("Adding play on ", submissionId);//, "in group ", groupId);
 
     // Make SQL query to get rows
-    pgHelper.getSubmissionTag(submissionId, function (rows) {
+    pgController.getSubmissionTag(submissionId, function (rows) {
         console.log("*******************************************\n");
         console.log("In the get tag on sub callback!");
         console.log(rows);
