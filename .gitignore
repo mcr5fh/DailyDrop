@@ -5,3 +5,4 @@ node_modules/*
 **.DS_*
 ReallyOld/*
 RDS/Zipped/*
+**.pyc
