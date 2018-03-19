@@ -1,3 +1,14 @@
+CREATE TYPE submission_with_data as 
+(submission_id uuid,
+ song_id text,
+ song_name text,
+ artist_name text,
+ submitted_by text,
+ num_votes integer,
+ num_plays integer,
+ date_added timestamp without time zone);
+
+
 create or replace function dailydrop.get_data_for_group(
       group_uuid uuid,
       num_days integer,

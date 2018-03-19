@@ -92,9 +92,9 @@ create or replace function dailydrop.get_data_for_group(
 -- returns XXX
 as $BODY$
 begin
-   SELECT INTO submission_id, song_id, song_name, artist_name, submitted_by,  
-    num_votes, num_plays, date_added
-    s.submission_id submission_id, s.song_id, s.song_name, s.artist_name, s.user_id,  
+ for rec in
+   SELECT 
+    s.submission_id, s.song_id, s.song_name, s.artist_name, s.user_id,  
     sm.num_votes, sm.num_plays, s.date_added
 
     FROM dailydrop.Submission as s 
@@ -103,7 +103,10 @@ begin
     WHERE s.group_id = group_uuid
     and age(now(), s.date_added) < num_days * interval '1 day'
     ORDER BY quote_ident(sort_column)  DESC
-    LIMIT 10;
+    LIMIT 10
+loop
+        return next rec;
+    end loop;
     -- no return statement necessary, output values already stored in OUT parameters
 end
 $BODY$ language plpgsql;
@@ -172,14 +175,14 @@ create or replace function get_from_group(
     IN  num_days integer,
     IN  sort_column text,
 
-    OUT submission_id uuid,
-     OUT song_id text,
-     OUT song_name text,
-     OUT artist_name text,
-     OUT submitted_by text,
-     OUT num_votes integer,
-     OUT num_plays integer,
-     OUT date_added timestamp without time zone
+     submission_id uuid,
+      song_id text,
+      song_name text,
+      artist_name text,
+      submitted_by text,
+      num_votes integer,
+      num_plays integer,
+      date_added timestamp without time zone
 )
 -- no returns clause necessary, output structure controlled by OUT parameters
 -- returns XXX
