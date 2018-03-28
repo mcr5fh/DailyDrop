@@ -1,6 +1,8 @@
 const pgController = require("../postgres/submissionsPgController.js")
+const errors = require("../constants/errors.js")
 
 exports.insertSubmission = function (req, res) {
+    console.log(res);
     const songId = req.body.song_id;
     const userId = req.body.user_id;
     const groupId = req.body.group_id;
@@ -14,12 +16,19 @@ exports.insertSubmission = function (req, res) {
         console.log("In the insert sub callback!");
         console.log(rows);
         //transform
-        res.json(rows);
+        //Insert submission returns a submission id on success
+        if (rows.length == 0) {
+            res.status(errors.BAD_REQUEST_RESPONSE_CODE);
+            res.send("Bad Request. The submission was not inserted because the song " + songId +
+                " has already been submitted in the group " + groupId);
+        } else {
+            res.json(rows);
+        }
     })
 }
 
 exports.addVoteToSubmission = function (req, res) {
-    const submissionId = req.params.submission_id;
+    const submissionId = req.body.submission_id;
     const userId = req.body.user_id;
     // const groupId = req.body.group_id;
     console.log(req);
@@ -36,23 +45,7 @@ exports.addVoteToSubmission = function (req, res) {
 }
 
 exports.addPlayToSubmission = function (req, res) {
-    const submissionId = req.params.submission_id;
-    const userId = req.body.user_id;
-    // const groupId = req.body.group_id;
-    console.log("Adding play on ", submissionId);//, "in group ", groupId);
-
-    // Make SQL query to get rows
-    pgController.addPlayToSubmission(submissionId, userId, function (rows) {
-        console.log("*******************************************\n");
-        console.log("In the add play on sub callback!");
-        console.log(rows);
-        //transform
-        res.json(rows);
-    })
-}
-
-exports.addPlayToSubmission = function (req, res) {
-    const submissionId = req.params.submission_id;
+    const submissionId = req.body.submission_id;
     const userId = req.body.user_id;
     // const groupId = req.body.group_id;
     console.log("Adding play on ", submissionId);//, "in group ", groupId);

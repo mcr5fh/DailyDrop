@@ -13,12 +13,28 @@ Tt is the smoothed trend value time t.
 Yt is the actual, observed data point at time t
 Pt is the predicted value for time t 
 
-Ct = αYt + (1-α)(Ct-1 + Tt-1)
-Tt = β(Ct – Ct-1) + (1 – β)Tt-1
-        Pt+1 = Ct + Tt
+Ct = alpha*Yt + (1-alpha)(Ct-1 + Tt-1)
+Tt = beta*(Ct - Ct-1) + (1 - beta)Tt-1
+Pt+1 = Ct + Tt
 
 self.avg + self.trend = next predicted value
 
+- On submission, the submission id is added to the zscore table
+
+
+- Currently on the first day a song is submitted, the z-score will be calculated
+    to be 0. We basically add the observation to the population, and assume the 
+    z-score to be 0. Below is an example of what the script would "do" if a song 
+    got 2,10,10, then 0 plays.
+    
+    from doubleSmoothing import doubleSmoothing 
+    doubleSmoothing(0.2,0.25,[2])
+    doubleSmoothing(0.2,0.25,[2]).score(10)
+    z-score: 8.0
+    doubleSmoothing(0.2,0.25,[2,10]).score(10)
+    z-score: 2.0
+    doubleSmoothing(0.2,0.25,[2,10,10]).score(0)
+    z-score: -1.53
 '''
 
 
@@ -55,7 +71,7 @@ class doubleSmoothing:
 
     def score(self, obs):
         if self.std() == 0:
-            return (obs - self.avg) * float("infinity")
+            return obs - self.avg
         else:
             print("Expected Value: " + str(self.avg + self.trend))
             return (obs - self.avg) / self.std()

@@ -6,3 +6,5 @@ node_modules/*
 ReallyOld/*
 RDS/Zipped/*
 **.pyc
+**test**
+test**

@@ -30,9 +30,22 @@ exports.insertUser = function (userId, premium, name, refreshToken, callback) {
         values: [userId, premium, name, refreshToken]
     }
     // Make SQL query to get rows
-    postgres.execQuery(query, function (rows) {
+    postgres.execTransaction([query], function (rows) {
         //transform
         console.log("In INSERT USER execQuery callback. Passing to users callback!");
+        callback(rows)
+    })
+}
+
+exports.addUserToGroup = function (userId, groupId, callback) {
+    var query = {
+        text: queries.INSERT_USER_TO_GROUP,
+        values: [userId, groupId]
+    }
+    // Make SQL query to get rows
+    postgres.execQuery(query, function (rows) {
+        //transform
+        console.log("In INSERT USER TO GROUP execQuery callback. Passing to users callback!");
         callback(rows)
     })
 }
@@ -48,7 +61,7 @@ exports.updateUser = function (userId, premium, name, refreshToken, callback) {
     // Make SQL query to get rows
     postgres.execQuery(query, function (rows) {
         //transform
-        console.log("In INSERT USER execQuery callback. Passing to users callback!");
+        console.log("In UPDATE USER execQuery callback. Passing to users callback!");
         callback(rows)
     })
 }

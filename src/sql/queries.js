@@ -2,8 +2,8 @@
 var fs = require('fs');
 
 const QUERY_FOLDER = 'sql/';
-const GET_ALL_INFO_FOR_GROUP_QUERY_PATH = QUERY_FOLDER + 'get_all_info_for_group.sql'
-const GET_ALL_INFO_FOR_GROUP_QUERY = fs.readFileSync(GET_ALL_INFO_FOR_GROUP_QUERY_PATH, 'utf8')
+// const GET_ALL_INFO_FOR_GROUP_QUERY_PATH = QUERY_FOLDER + 'get_all_info_for_group.sql'
+// const GET_ALL_INFO_FOR_GROUP_QUERY = fs.readFileSync(GET_ALL_INFO_FOR_GROUP_QUERY_PATH, 'utf8')
 module.exports = Object.freeze({
     //We should also have one for on a date 
     // GET_SUBMISSIONS_IN_GROUP_ON_DATE_PATH: `GET_SUBMISSIONS_IN_GROUP_ON_DATE_PATH`, query string params
@@ -12,14 +12,89 @@ module.exports = Object.freeze({
 
     // GET_ALL_INFO_FOR_GROUP: GET_ALL_INFO_FOR_GROUP_QUERY,
     GET_SUBMISSIONS_IN_GROUP:
-        `SELECT s.submission_id, s.song_id, s.song_name, s.artist_name, s.user_id,  sm.num_votes, 
-            sm.num_plays, st.tag, sm.trending_rate, sm.popular_rate, s.date_added 
+        `SELECT s.submission_id, s.song_id, s.song_name, s.artist_name, s.user_id, st.tag, s.date_added,
+            COUNT(plays.submission_id)::integer as num_plays, 
+            COUNT(votes.submission_id)::integer as num_votes
         FROM dailydrop.Submission as s 
-        LEFT OUTER JOIN dailydrop.Submission_Metrics as sm 
-            on s.submission_id = sm.submission_id 
+        LEFT JOIN dailydrop.submission_vote as votes
+            on s.submission_id = votes.submission_id 
+        LEFT JOIN dailydrop.submission_play as plays
+            on s.submission_id = plays.submission_id 
         LEFT OUTER JOIN dailydrop.submission_tag as st 
             on s.submission_id = st.submission_id 
-        WHERE s.group_id = $1;`,
+        WHERE s.group_id = $1
+        GROUP BY s.submission_id, st.tag;`,
+
+    GET_SUBMISSIONS_IN_GROUP_TIME_BUCKET:
+        `SELECT 
+        (SELECT to_json(array_agg(row))
+         FROM (SELECT
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT * 
+                       FROM dailydrop.get_data_for_group($1,1,'num_plays')
+                    LIMIT 10) row
+             ) AS one_day,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,7,'num_plays')
+                    LIMIT 10) row
+             ) AS one_week,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,31,'num_plays')
+                    LIMIT 10) row
+             ) AS one_month,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,-1,'num_plays')
+                    LIMIT 10) row
+             ) AS all_time) row
+        ) AS num_plays,
+        (SELECT to_json(array_agg(row))
+         FROM (SELECT
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT * 
+                       FROM dailydrop.get_data_for_group($1,1,'num_votes')
+                    LIMIT 10) row
+             ) AS one_day,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,7,'num_votes')
+                    LIMIT 10) row
+             ) AS one_week,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,31,'num_votes')
+                    LIMIT 10) row
+             ) AS one_month,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,-1,'num_votes')
+                    LIMIT 10) row
+             ) AS all_time) row    ) AS num_votes,
+        (SELECT to_json(array_agg(row))
+         FROM (SELECT
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT * 
+                       FROM dailydrop.get_data_for_group($1,1,'date_added')
+                    LIMIT 10) row
+             ) AS one_day,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,7,'date_added')
+                    LIMIT 10) row
+             ) AS one_week,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,31,'date_added')
+                    LIMIT 10) row
+             ) AS one_month,
+             (SELECT COALESCE(to_json(array_agg(row)),'[]')
+              FROM (SELECT *
+                    FROM dailydrop.get_data_for_group($1,-1,'date_added')
+                    LIMIT 10) row
+             ) AS all_time) row
+        ) AS date_added;`,
     // ORDER BY sm.num_plays DESC, sm.num_votes DESC;`,
 
     GET_USERS_IN_GROUP: `SELECT * 
@@ -41,9 +116,6 @@ module.exports = Object.freeze({
     INSERT_GROUP: `INSERT INTO dailydrop.Group(name, creator_user_id, description) 
                 VALUES($1, $2, $3) 
                 RETURNING group_id, date_added, name, creator_user_id, description;`,
-    // INSERT_SUBMISSION: `INSERT INTO dailydrop.Submission (song_id, song_name, artist_name, user_id, group_id) 
-    //             VALUES ($1, $2, $3, $4, $5)
-    //             RETURNING submission_id, song_id, user_id, group_id, date_added;`,
     //We have to insert the submission id to the zscore table as well
     //We don't allow submission of the same song in the same group within 30 days
     INSERT_SUBMISSION:
@@ -61,7 +133,7 @@ module.exports = Object.freeze({
      RETURNING submission_id, last_updated as date_added;`,
     //     `WITH inserted_submission AS ( 
     //         INSERT INTO dailydrop.Submission(song_id, user_id, group_id, song_name, artist_name) 
-    //          SELECT $1, $2, $3, $4, $5 
+    //       SELECT $1, $2, $3, $4, $5 
     //          WHERE NOT EXISTS ( 
     //              SELECT submission_id FROM dailydrop.Submission 
     //              WHERE group_id=$3 and song_id=$1 
@@ -71,9 +143,6 @@ module.exports = Object.freeze({
     //     INSERT INTO dailydrop.submission_zscore(submission_id) 
     //         SELECT submission_id FROM inserted_submission 
     //     RETURNING submission_id, last_updated as date_added;`,
-    INSERT_SUBMISSION_TO_METRICS: `INSERT INTO dailydrop.Submission_Metrics (submission_id) 
-                VALUES ($1)
-                RETURNING submission_id, last_updated;`,
     INSERT_SUBMISSION_TO_ZSCORE: `INSERT INTO dailydrop.Submission_Zscore (submission_id) 
                 VALUES ($1)
                 RETURNING submission_id, last_updated;`,
@@ -86,21 +155,11 @@ module.exports = Object.freeze({
     INSERT_TAG: `INSERT INTO dailydrop.Submission_Tag(submission_id, tag) 
                 VALUES ($1, $2) 
                 ON CONFLICT(submission_id) DO UPDATE 
-                SET tag = $2, , date_added = now() 
+                SET tag = $2, date_added = now() 
                 RETURNING submission_id, tag, date_added;`,
 
     //If result Row is non-exsistent, the result will contain zero rows
     //For now, we will let the person vote on their own submission
-    ADD_VOTE_TO_SUBMISSION: `UPDATE dailydrop.Submission_Metrics as s 
-                        SET num_votes = num_votes + 1, 
-                        last_updated = now() 
-                        WHERE s.submission_id=$1 
-                        RETURNING num_votes;`,
-    ADD_PLAY_TO_SUBMISSION: `UPDATE dailydrop.Submission_Metrics as s 
-                        SET num_plays = num_plays + 1, 
-                        last_updated = now() 
-                        WHERE s.submission_id=$1 
-                        RETURNING num_plays;`,
     UPDATE_GROUP: `UPDATE dailydrop.Group as g 
                         SET name = COALESCE($1,name), 
                         description = COALESCE($2,description) 

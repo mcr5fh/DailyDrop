@@ -1,6 +1,7 @@
 'use strict';
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
+const Errors = require("../constants/errors.js")
 const pg = require("pg");
 const user = 'root';
 const pwd = 'TuckedIn';
@@ -15,8 +16,8 @@ const pool = new Pool({
     ssl: true,
     max: 20, // set pool max size to 20
     min: 4, // set min pool size to 4
-    idleTimeoutMillis: 3000, // close idle clients after 1 second
-    connectionTimeoutMillis: 2000, // return an error after 1 second if connection could not be established
+    idleTimeoutMillis: 1000, // close idle clients after 1 second
+    connectionTimeoutMillis: 1000, // return an error after 1 second if connection could not be established
 });
 
 // the pool with emit an error on behalf of any idle clients
@@ -34,7 +35,7 @@ exports.execQuery = function (query, callback) {
     console.log("Executing the following query: " + JSON.stringify(query));
 
     query.values.forEach(checkForTestData);
-    query.values.forEach(checkIfNull);
+    // query.values.forEach(checkIfNull);
 
     pool.query(query, (err, result) => {
         if (err) {
@@ -71,7 +72,7 @@ exports.execTransaction = function (queryList, callback) {
             queryList.forEach(queryObj => {
                 //We don't want to run the query if there was an error parsing any info 
                 queryObj.values.forEach(checkForTestData);
-                queryObj.values.forEach(checkIfNull);
+                // queryObj.values.forEach(checkIfNull);
                 console.log("Executing query: ", queryObj);
                 const { rows } = await(client.query(queryObj))
                 checkIfNull(rows);
@@ -85,12 +86,12 @@ exports.execTransaction = function (queryList, callback) {
             callback(resultValues);
         } catch (e) {
             await(client.query('ROLLBACK'))
-            console.log("Transaction failed. Rolled back");
-            throw e
+            console.log("Transaction failed. Rolled back: " + e.message);
+            throw new Errors.BadRequestError(e.message);
         } finally {
             client.release()
         }
-    }))().catch(e => console.error(e.stack))
+    }))().catch(e => { throw e; });
 };
 
 ////////////////////////////////////////////
@@ -104,12 +105,15 @@ function checkForTestData(value, index, array) {
         console.log("Found test data. Appended date:" + array[index]);
     }
 }
+//Type is either input or output
+//We don't allow blank inputs
 function checkIfNull(value) {
     if (typeof value === 'undefined') {
-        throw new Error("The query value cannot be null")
-    } else if (value instanceof Array && value.length == 0) {
-        throw new Error("The query result was null, meaning something went wrong")
+        throw new Errors.BadRequestError("The query returned null")
     }
+    //  if (value.length == 0) {
+    //     throw new Errors.BadRequestError("The query " + type + " was null or blank, meaning something went wrong")
+    // }
 }
 
 function concatObjects(o1, o2) {

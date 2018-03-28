@@ -11,7 +11,7 @@ exports.insertSubmission = function (songId, userId, groupId, songName, artistNa
         values: [songId, songName, artistName, userId, groupId]
     }
     // Make SQL query to get rows
-    postgres.execQuery(query, function (rows) {
+    postgres.execTransaction([query], function (rows) {
         //transform
         console.log("In INSERT SUBMISSION postgres.execQuery callback. Passing to sub callback!");
         callback(rows)
@@ -39,13 +39,9 @@ exports.addVoteToSubmission = function (submissionId, userId, callback) {
         text: queries.INSERT_VOTE,
         values: [submissionId, userId]
     }
-    var incrementVote = {
-        text: queries.ADD_VOTE_TO_SUBMISSION,
-        values: [submissionId]
-    }
     // Make SQL query to get rows
     //TODO: this has to be a transaction
-    postgres.execTransaction([insertVote, incrementVote], function (rows) {
+    postgres.execTransaction([insertVote], function (rows) {
         //transform
         console.log("In VOTE SUBMISSION postgres.execQuery callback. Passing to sub callback!");
         callback(rows)
@@ -57,12 +53,8 @@ exports.addPlayToSubmission = function (submissionId, userId, callback) {
         text: queries.INSERT_PLAY,
         values: [submissionId, userId]
     }
-    var incrementPlay = {
-        text: queries.ADD_PLAY_TO_SUBMISSION,
-        values: [submissionId]
-    }
     // Make SQL query to get rows
-    postgres.execTransaction([insertPlay, incrementPlay], function (rows) {
+    postgres.execTransaction([insertPlay], function (rows) {
         //transform
         console.log("In PLAY SUBMISSION postgres.execQuery callback. Passing to sub callback!");
         callback(rows)
@@ -77,7 +69,7 @@ exports.addTagToSubmission = function (submissionId, tag, callback) {
     // Make SQL query to get rows
     postgres.execQuery(insertTag, function (rows) {
         //transform
-        console.log("In PLAY SUBMISSION postgres.execQuery callback. Passing to sub callback!");
+        console.log("In TAG SUBMISSION postgres.execQuery callback. Passing to sub callback!");
         callback(rows)
     })
 }

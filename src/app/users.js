@@ -19,12 +19,26 @@ exports.insertUser = function (req, res) {
     const premium = req.body.premium;
     const name = req.body.name;
     const refreshToken = req.body.refresh_token;
-    console.log("insert user USERID: " + user_id)
+    console.log("insert user USERID: " + userId)
 
     // Make SQL query to get rows
     pgController.insertUser(userId, premium, name, refreshToken, function (rows) {
         console.log("*******************************************\n");
         console.log("In the insert user callback!");
+        console.log(rows);
+        //transform
+        res.json(rows);
+    })
+}
+
+exports.addUserToGroup = function (req, res) {
+    const userId = req.body.user_id;
+    const groupId = req.body.group_id;
+
+    // Make SQL query to get rows
+    pgController.addUserToGroup(userId, groupId, function (rows) {
+        console.log("*******************************************\n");
+        console.log("In the insert user to group callback!");
         console.log(rows);
         //transform
         res.json(rows);

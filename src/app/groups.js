@@ -10,6 +10,16 @@ exports.getAllInfoForGroup = function (req, res) {
     })
 }
 
+exports.getAllInfoForGroupSorted = function (req, res) {
+    // Get user id from params
+    const groupId = req.params.group_id
+
+    // Make SQL query to get rows
+    pgController.getAllInfoForGroupSorted(groupId, function (rows) {
+        res.json(rows);
+    })
+}
+
 exports.getSubmissionsInGroup = function (req, res) {
     // Get user id from params
     const groupId = req.params.group_id
