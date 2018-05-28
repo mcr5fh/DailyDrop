@@ -5,26 +5,46 @@ import canary_constants
 
 print datetime.datetime.now()
 
-base_url = "https://yyh6hsqj4g.execute-api.us-east-1.amazonaws.com/Beta"
+base_url = "https://yyh6hsqj4g.execute-api.us-east-1.amazonaws.com/"
 
 POST = "POST"
 GET = "GET"
-# PUT = "PUT"
-# insert_group_path = "/v1/groups"
 log_body = False
 only_report_failures = False
 
 failed_tests = []
 
 
-def test_endpoint(method, request):
+def lambda_handler(event, context):
+    domain = event['domain']
+    api_gw_url = base_url + domain
+    for request in canary_constants.INSERT_TESTS:
+        try:
+            test_endpoint(POST, api_gw_url, request)
+        except Exception as e:
+            print str(e)
+
+    # GETS
+    for request in canary_constants.GET_TESTS:
+        test_endpoint(GET, api_gw_url, request)
+
+    if len(failed_tests) > 0:
+        # report test failure
+        error_output = "Failed tests: "
+        for failed in failed_tests:
+            error_output += str(failed)
+        return (False, error_output)
+    return (True, "All tests passed")
+
+
+def test_endpoint(method, url, request):
     response = ""
     if(method == POST):
-        response = unirest.post(base_url + request["path"],
+        response = unirest.post(url + request["path"],
                                 headers={"Accept": "application/json"},
                                 params=request["params"])
     elif(method == GET):
-        response = unirest.get(base_url + request["path"])
+        response = unirest.get(url + request["path"])
 
     # We want to make sure we get some sort of 200 back
     print "-----------------------------------------------------------------------"
@@ -36,17 +56,3 @@ def test_endpoint(method, request):
     if log_body:
         print "Response body: " + str(response.body)
     print "-----------------------------------------------------------------------"
-
-
-for request in canary_constants.INSERT_TESTS:
-    try:
-        test_endpoint(POST, request)
-    except Exception as e:
-        print str(e)
-
-# GETS
-for request in canary_constants.GET_TESTS:
-    test_endpoint(GET, request)
-print "Failed tests: "
-for failed in failed_tests:
-    print(str(failed))

@@ -66,12 +66,11 @@ GET_INFO_FOR_GROUP = {"path": "/v1/groups/" + CANARY_GROUP_ID + "/info"}
 # "/v1/groups/" + CANARY_GROUP_ID + "/submissions"
 GET_TAGS_FOR_SUBMISSION = {"path": "/v1/tags/" + CANARY_SUBMISSION_ID}
 
-GET_VOTES_FOR_SUBMISSION = {"path": "/v1/votes/" + CANARY_SUBMISSION_ID}
 GET_INFO_FOR_USER = {"path": "/v1/users/" + CANARY_USER_ID + "/info"}
 
 
 GET_TESTS = [GET_USERS_IN_GROUP, GET_INFO_FOR_GROUP_SORTED, GET_INFO_FOR_GROUP,
-             GET_VOTES_FOR_SUBMISSION, GET_INFO_FOR_USER]
+             GET_INFO_FOR_USER]
 # "/v1/groups/" + CANARY_GROUP_ID + "/submissions"GET_TAGS_FOR_SUBMISSION,
 
 INSERT_TESTS = [INSERT_USER, INSERT_GROUP,
